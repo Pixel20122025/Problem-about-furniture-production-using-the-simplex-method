@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Розв'язок задачі про меблі</title>
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 20px;
+    background: #f7f9fc;
+    color: #333;
+    text-align: center; /* вирівнювання всього тексту по центру */
+}
+h1, h2 {
+    text-align: center;
+}
+section {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: inline-block; /* щоб текст і таблиці були по центру */
+    width: 90%;
+    max-width: 700px;
+}
+p, ul, pre {
+    text-align: center;
+}
+ul {
+    list-style-position: inside;
+    padding-left: 0;
+}
+pre {
+    background: #eef;
+    padding: 10px;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+canvas {
+    display: block;
+    margin: 20px auto;
+    background: #fff;
+    border: 1px solid #ccc;
+}
+
+/* Стили для симплекс-таблиці */
+.simplex-table {
+    width: 100%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    font-family: 'Segoe UI', sans-serif;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.simplex-table th, .simplex-table td {
+    padding: 10px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+.simplex-table th {
+    background-color: #4a90e2;
+    color: #fff;
+    font-weight: 600;
+}
+.simplex-table tr:last-child td {
+    font-weight: bold;
+    background-color: #f0f8ff;
+}
+.simplex-table tr:hover td {
+    background-color: #f9f9f9;
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>Задача про виробництво меблів</h1>
+
+<section>
+<h2>Умова задачі</h2>
+<p>Фабрика виробляє <b>столи</b> і <b>стільці</b>:</p>
+<ul>
+<li>Прибуток: стіл = 120 грн, стілець = 40 грн</li>
+<li>Деревина на складі: 350 кг</li>
+<li>Деревина на 1 стіл: 15 кг, на 1 стілець: 4 кг</li>
+</ul>
+<p>Математична модель:</p>
+<pre>
+x₁ = кількість столів
+x₂ = кількість стільців
+Максимізувати Z = 120x₁ + 40x₂
+Обмеження:
+15x₁ + 4x₂ ≤ 350
+x₁, x₂ ≥ 0
+</pre>
+</section>
+
+<section>
+<h2>Розв'язок симплекс-методом</h2>
+<p>Перетворюємо нерівність у рівність, додаючи змінну запасу s:</p>
+<pre>15x₁ + 4x₂ + s = 350, s ≥ 0</pre>
+<p>Цільова функція:</p>
+<pre>Z - 120x₁ - 40x₂ = 0</pre>
+
+<h2>Початкова симплекс-таблиця</h2>
+<table class="simplex-table">
+  <thead>
+    <tr>
+      <th>Базис</th>
+      <th>x₁</th>
+      <th>x₂</th>
+      <th>s</th>
+      <th>RHS</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>s</td>
+      <td>15</td>
+      <td>4</td>
+      <td>1</td>
+      <td>350</td>
+    </tr>
+    <tr>
+      <td>Z</td>
+      <td>-120</td>
+      <td>-40</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Вибираємо x₁ як вхідну змінну (найбільший негативний коефіцієнт). Вихідна змінна: s (350/15 ≈ 23.33)</p>
+<p>Після першого кроку:</p>
+<pre>
+x₁ = 23.33, x₂ = 0, s = 0
+Z = 120*23.33 + 40*0 ≈ 2800
+</pre>
+<p>Перевірка обмеження: 15*23.33 + 4*0 = 350</p>
+<p>Отже, оптимальне рішення без цілочисельності:</p>
+<pre>x₁ = 23.33, x₂ = 0, Z ≈ 2800</pre>
+</section>
+
+<section>
+<h2>Графік допустимої області</h2>
+<canvas id="graph" width="600" height="400"></canvas>
+<script>
+const ctx = document.getElementById('graph').getContext('2d');
+const data = {
+    labels: Array.from({length: 25}, (_, i) => i), // x₁ від 0 до 24
+    datasets: [
+        {
+            label: 'Обмеження 15x₁ + 4x₂ ≤ 350',
+            data: Array.from({length: 25}, (_, x1) => (350 - 15*x1)/4),
+            borderColor: 'blue',
+            borderWidth: 2,
+            fill: true,
+            backgroundColor: 'rgba(173,216,230,0.3)',
+            tension: 0.2,
+        },
+        {
+            label: 'Лінія прибутку Z=2800',
+            data: Array.from({length: 25}, (_, x1) => (2800 - 120*x1)/40),
+            borderColor: 'red',
+            borderWidth: 2,
+            borderDash: [5,5],
+            fill: false,
+        }
+    ]
+};
+const options = {
+    scales: {
+        x: { title: { display: true, text: 'x₁ (столи)' }, min:0, max:24 },
+        y: { title: { display: true, text: 'x₂ (стільці)' }, min:0, max:90 }
+    }
+};
+new Chart(ctx, { type: 'line', data, options });
+</script>
+</section>
+
+</body>
+</html>
